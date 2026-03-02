@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = 'force-dynamic';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { getSchoolContext } from '@/lib/utils';
@@ -36,13 +37,15 @@ export default function UnifiedHistory() {
     const [activities, setActivities] = useState<Activity[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [activeTab, setActiveTab] = useState<'all' | 'orders' | 'tickets'>(
-        (searchParams.get('type') === 'order' ? 'orders' : searchParams.get('type') === 'ticket' ? 'tickets' : 'all') as any
-    );
+    const [activeTab, setActiveTab] = useState<'all' | 'orders' | 'tickets'>('all');
 
     useEffect(() => {
+        const type = searchParams.get('type');
+        if (type === 'order') setActiveTab('orders');
+        else if (type === 'ticket') setActiveTab('tickets');
+
         fetchHistory();
-    }, []);
+    }, [searchParams]);
 
     async function fetchHistory() {
         try {
