@@ -182,7 +182,7 @@ export default function Home() {
             </form>
 
             <div className="mt-10 pt-8 border-t border-white/5 text-center flex flex-col gap-3">
-              <Link href="/login" className="text-[9px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors flex items-center justify-center gap-2 group/admin">
+              <Link href="/admin/login" className="text-[9px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors flex items-center justify-center gap-2 group/admin">
                 <ShieldCheck className="w-3 h-3 text-amber-500/40 group-hover/admin:text-amber-500" />
                 ÁREA ADMINISTRATIVA
               </Link>
