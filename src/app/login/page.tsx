@@ -1,8 +1,10 @@
 "use client";
 export const dynamic = 'force-dynamic';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import { Mail, Key, ArrowRight, ShieldCheck } from 'lucide-react';
+import HeroVideo from '@/components/HeroVideo';
 
 export default function Login() {
     const router = useRouter();
@@ -11,130 +13,145 @@ export default function Login() {
     const [error, setError] = useState<string | null>(null);
     const [loading, setLoading] = useState(false);
 
+    useEffect(() => {
+        const checkSession = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            const schoolId = localStorage.getItem('school_portal_id');
+            if (session) {
+                const { data: profile } = await supabase.from('profiles').select('role').eq('id', session.user.id).single();
+                if (profile?.role === 'admin') router.push('/admin');
+                else router.push('/portal');
+            } else if (schoolId) {
+                router.push('/portal');
+            }
+        };
+        checkSession();
+    }, [router]);
+
     async function handleLogin(e: React.FormEvent) {
         e.preventDefault();
         setLoading(true);
         setError(null);
 
-        const { data, error: authError } = await supabase.auth.signInWithPassword({
-            email,
-            password,
-        });
+        try {
+            // 1. Auth Standard
+            const { data, error: authError } = await supabase.auth.signInWithPassword({
+                email,
+                password,
+            });
 
-        if (authError) {
-            setError('Credenciais inválidas. Verifique seu e-mail e senha.');
+            if (!authError && data.user) {
+                const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
+                if (profile?.role === 'admin') router.push('/admin');
+                else router.push('/portal');
+                return;
+            }
+
+            // 2. Fallback Portal Escolas
+            const { data: school } = await supabase.from('schools').select('id, name').eq('portal_email', email).eq('portal_password', password).single();
+            if (school) {
+                localStorage.setItem('school_portal_id', school.id);
+                localStorage.setItem('school_portal_name', school.name);
+                router.push('/portal');
+            } else {
+                setError('Credenciais inválidas. Verifique seu e-mail e senha.');
+            }
+        } catch (err) {
+            setError('Erro ao conectar ao servidor.');
+        } finally {
             setLoading(false);
-            return;
-        }
-
-        // Buscar o perfil para saber o redirecionamento
-        const { data: profile } = await supabase
-            .from('profiles')
-            .select('role')
-            .eq('id', data.user.id)
-            .single();
-
-        if (profile?.role === 'admin') {
-            router.push('/admin');
-        } else {
-            router.push('/portal');
         }
     }
 
     return (
-        <div className="login-page">
-            <div className="login-card card animate-fade">
-                <div className="logo">
-                    <span className="blue">CIDADE VIVA</span>
-                    <span className="orange"> EDUCATION</span>
-                </div>
+        <div className="relative min-h-[calc(100vh-6rem)] flex items-center justify-center -mt-8 overflow-hidden">
+            <HeroVideo />
 
-                <h2>Portal de Pedidos</h2>
-                <p>Identifique-se para acessar o sistema.</p>
+            <div className="relative z-10 w-full max-w-[480px] px-6 py-20 animate-slide-up">
+                <div className="relative group">
+                    <div className="absolute -inset-1 bg-gradient-to-r from-amber-500/20 to-amber-700/20 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
+                    <div className="relative glass-card p-10 md:p-12 border border-white/10 bg-[#020617]/80 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl overflow-hidden">
 
-                {error && <div className="error-box">{error}</div>}
+                        <div className="mb-10 text-center">
+                            <div className="inline-flex p-3 bg-amber-500/10 rounded-2xl mb-6">
+                                <ShieldCheck className="w-8 h-8 text-amber-500" />
+                            </div>
+                            <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter leading-none mb-2">Acesso ao <span className="text-amber-500">Portal</span></h2>
+                            <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em]">Cidade Viva Education</p>
+                        </div>
 
-                <form onSubmit={handleLogin}>
-                    <div className="form-group">
-                        <label>E-mail</label>
-                        <input
-                            type="email"
-                            value={email}
-                            onChange={e => setEmail(e.target.value)}
-                            required
-                            placeholder="seu@email.com"
-                        />
+                        {error && (
+                            <div className="mb-6 bg-red-500/10 border border-red-500/20 text-red-500 p-4 rounded-2xl text-[10px] font-black uppercase tracking-widest text-center italic animate-shake">
+                                {error}
+                            </div>
+                        )}
+
+                        <form onSubmit={handleLogin} className="space-y-6">
+                            <div className="space-y-2">
+                                <label className="text-[9px] font-black text-amber-500/60 uppercase tracking-[0.2em] ml-2">E-mail</label>
+                                <div className="relative group/input">
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 group-focus-within/input:text-amber-500 transition-colors" />
+                                    <input
+                                        type="email"
+                                        placeholder="seu@email.com"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-white text-sm font-bold focus:border-amber-500 outline-none transition-all focus:bg-white/10"
+                                        value={email}
+                                        onChange={e => setEmail(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <div className="space-y-2">
+                                <label className="text-[9px] font-black text-amber-500/60 uppercase tracking-[0.2em] ml-2">Senha</label>
+                                <div className="relative group/input">
+                                    <Key className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 group-focus-within/input:text-amber-500 transition-colors" />
+                                    <input
+                                        type="password"
+                                        placeholder="••••••••"
+                                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-white text-sm font-bold focus:border-amber-500 outline-none transition-all focus:bg-white/10"
+                                        value={password}
+                                        onChange={e => setPassword(e.target.value)}
+                                        required
+                                    />
+                                </div>
+                            </div>
+
+                            <button
+                                type="submit"
+                                disabled={loading}
+                                className="btn-primary w-full h-16 rounded-2xl shadow-xl shadow-amber-500/10 group active:scale-95 transition-all disabled:opacity-50"
+                            >
+                                <span className="font-black italic tracking-tighter text-xl uppercase leading-none">
+                                    {loading ? 'AUTENTICANDO...' : 'ENTRAR NO SISTEMA'}
+                                </span>
+                                {!loading && <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />}
+                            </button>
+                        </form>
+
+                        <div className="mt-8 text-center">
+                            <button onClick={() => router.push('/')} className="text-[9px] font-black text-gray-600 hover:text-white uppercase tracking-widest transition-colors">
+                                Voltar para a Home
+                            </button>
+                        </div>
                     </div>
-
-                    <div className="form-group">
-                        <label>Senha</label>
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                            required
-                            placeholder="••••••••"
-                        />
-                    </div>
-
-                    <button type="submit" className="btn-primary w-full" disabled={loading}>
-                        {loading ? 'Autenticando...' : 'Entrar no Sistema'}
-                    </button>
-                </form>
-
-                <div className="footer-links">
-                    <a href="#">Esqueceu sua senha?</a>
                 </div>
             </div>
 
             <style jsx>{`
-        .login-page {
-          min-height: 100vh;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: radial-gradient(circle at top right, #f8fafc 0%, #cbd5e1 100%);
-          padding: 1.5rem;
-        }
-
-        .login-card {
-          width: 100%;
-          max-width: 420px;
-          padding: 3rem 2.5rem;
-          text-align: center;
-        }
-
-        .logo { font-size: 1.5rem; font-weight: 800; margin-bottom: 2rem; }
-        .logo .blue { color: var(--secondary); }
-        .logo .orange { color: var(--primary); }
-
-        h2 { font-size: 1.5rem; color: var(--secondary); margin-bottom: 0.5rem; }
-        p { color: var(--text-muted); margin-bottom: 2.5rem; }
-
-        .form-group { text-align: left; margin-bottom: 1.5rem; }
-        label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; }
-        
-        input {
-          width: 100%;
-          padding: 0.8rem;
-          border: 1px solid var(--border);
-          border-radius: var(--radius-md);
-          font-size: 1rem;
-        }
-
-        .error-box {
-          background: #fee2e2;
-          color: #991b1b;
-          padding: 0.75rem;
-          border-radius: var(--radius-sm);
-          margin-bottom: 1.5rem;
-          font-size: 0.85rem;
-        }
-
-        .w-full { width: 100%; padding: 1rem; margin-top: 1rem; }
-        .footer-links { margin-top: 2rem; font-size: 0.85rem; }
-        .footer-links a { color: var(--primary); font-weight: 600; }
-      `}</style>
+                @keyframes slide-up {
+                    from { opacity: 0; transform: translateY(30px); }
+                    to { opacity: 1; transform: translateY(0); }
+                }
+                .animate-slide-up { animation: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
+                .animate-shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
+                @keyframes shake {
+                    10%, 90% { transform: translate3d(-1px, 0, 0); }
+                    20%, 80% { transform: translate3d(2px, 0, 0); }
+                    30%, 50%, 70% { transform: translate3d(-4px, 0, 0); }
+                    40%, 60% { transform: translate3d(4px, 0, 0); }
+                }
+            `}</style>
         </div>
     );
 }
