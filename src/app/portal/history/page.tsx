@@ -1,6 +1,6 @@
 "use client";
 export const dynamic = 'force-dynamic';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { supabase } from '@/lib/supabase';
 import { getSchoolContext } from '@/lib/utils';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -31,7 +31,7 @@ interface Activity {
     amount?: number;
 }
 
-export default function UnifiedHistory() {
+function HistoryContent() {
     const router = useRouter();
     const searchParams = useSearchParams();
     const [activities, setActivities] = useState<Activity[]>([]);
@@ -234,5 +234,20 @@ export default function UnifiedHistory() {
                 )}
             </div>
         </div>
+    );
+}
+
+export default function UnifiedHistory() {
+    return (
+        <Suspense fallback={
+            <div className="max-w-6xl mx-auto px-6 py-12 space-y-10">
+                <div className="py-20 text-center space-y-4 animate-pulse">
+                    <div className="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin mx-auto"></div>
+                    <p className="text-gray-600 font-bold uppercase text-[10px] tracking-widest">Carregando Histórico...</p>
+                </div>
+            </div>
+        }>
+            <HistoryContent />
+        </Suspense>
     );
 }
