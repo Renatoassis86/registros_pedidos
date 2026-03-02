@@ -16,6 +16,7 @@ import {
     ArrowUpRight,
     Truck
 } from 'lucide-react';
+import { useRouter, usePathname } from 'next/navigation';
 import { generateProtocol, getSchoolContext } from '@/lib/utils';
 
 interface Activity {
@@ -28,6 +29,8 @@ interface Activity {
 }
 
 export default function SchoolDashboard() {
+    const router = useRouter();
+    const pathname = usePathname();
     const [schoolName, setSchoolName] = useState('Sua Escola');
     const [consignmentData, setConsignmentData] = useState({ returnableQty: 0, percentage: 0, globalQty: 0 });
     const [activities, setActivities] = useState<Activity[]>([]);
@@ -39,7 +42,18 @@ export default function SchoolDashboard() {
     });
 
     useEffect(() => {
-        fetchInitialData();
+        const checkSession = async () => {
+            const schoolId = localStorage.getItem('school_portal_id');
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (!schoolId && !session) {
+                router.push('/');
+                return;
+            }
+            fetchInitialData();
+        };
+
+        checkSession();
     }, []);
 
     async function fetchInitialData() {

@@ -1,6 +1,6 @@
 "use client";
 export const dynamic = 'force-dynamic';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Package, ShieldCheck, ArrowRight, Mail, Key, User, ArrowUpRight } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
@@ -13,6 +13,27 @@ export default function Home() {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const checkExistingSession = async () => {
+      const schoolId = localStorage.getItem('school_portal_id');
+      const { data: { session } } = await supabase.auth.getSession();
+
+      if (session) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single();
+
+        if (profile?.role === 'admin') router.push('/admin');
+        else router.push('/portal');
+      } else if (schoolId) {
+        router.push('/portal');
+      }
+    };
+    checkExistingSession();
+  }, [router]);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -42,8 +63,7 @@ export default function Home() {
       }
 
       // 2. Fallback: Verificar diretamente na tabela de escolas
-      // Útil para quando a escola foi cadastrada mas o usuário Auth ainda não existe/foi confirmado
-      const { data: school, error: schoolError } = await supabase
+      const { data: school } = await supabase
         .from('schools')
         .select('id, name')
         .eq('portal_email', email)

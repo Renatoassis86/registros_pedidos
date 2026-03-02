@@ -1,8 +1,46 @@
 "use client";
 export const dynamic = 'force-dynamic';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
 
 export default function AdminDashboard() {
+    const router = useRouter();
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const checkAdmin = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (!session) {
+                router.push('/admin/login');
+                return;
+            }
+
+            const { data: profile } = await supabase
+                .from('profiles')
+                .select('role')
+                .eq('id', session.user.id)
+                .single();
+
+            if (profile?.role !== 'admin') {
+                router.push('/');
+                return;
+            }
+            setLoading(false);
+        };
+
+        checkAdmin();
+    }, []);
+
+    if (loading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#0b1222]">
+                <div className="w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"></div>
+            </div>
+        );
+    }
+
     return (
         <div className="admin-dashboard py-10">
             <header className="page-header mb-12 space-y-4">
