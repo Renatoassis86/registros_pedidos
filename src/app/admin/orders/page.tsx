@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = 'force-dynamic';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import Link from 'next/link';
@@ -203,8 +204,8 @@ export default function AdminOrders() {
                                                     {status.label}
                                                 </div>
                                                 <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-0.5 rounded ${order.type === 'contract_initial' ? 'bg-amber-500/10 text-amber-500' :
-                                                        order.type === 'occurrence' ? 'bg-red-400/10 text-red-400' :
-                                                            'bg-blue-400/10 text-blue-400'
+                                                    order.type === 'occurrence' ? 'bg-red-400/10 text-red-400' :
+                                                        'bg-blue-400/10 text-blue-400'
                                                     }`}>
                                                     {order.type === 'contract_initial' ? 'Contratual' :
                                                         order.type === 'occurrence' ? 'Ocorrência' :

@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = 'force-dynamic';
 import React, { useState } from 'react';
 import Link from 'next/link';
 import { Package, ShieldCheck, ArrowRight, Mail, Key, User, ArrowUpRight } from 'lucide-react';

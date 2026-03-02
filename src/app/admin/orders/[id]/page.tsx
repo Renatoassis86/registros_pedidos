@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = 'force-dynamic';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter, useParams } from 'next/navigation';
@@ -248,12 +249,12 @@ export default function AdminOrderDetail() {
                                 disabled={!isNext && !isCurrent}
                                 onClick={() => handleStepTransition(step.id)}
                                 className={`glass-card p-6 border transition-all text-left relative group overflow-hidden ${isCurrent
-                                        ? 'bg-amber-500/10 border-amber-500 ring-2 ring-amber-500/20'
-                                        : isPast
-                                            ? 'bg-emerald-400/5 border-emerald-400/20 opacity-60'
-                                            : isNext
-                                                ? 'bg-white/5 border-white/10 hover:border-amber-500 cursor-pointer'
-                                                : 'bg-white/2 border-white/5 opacity-30 cursor-not-allowed'
+                                    ? 'bg-amber-500/10 border-amber-500 ring-2 ring-amber-500/20'
+                                    : isPast
+                                        ? 'bg-emerald-400/5 border-emerald-400/20 opacity-60'
+                                        : isNext
+                                            ? 'bg-white/5 border-white/10 hover:border-amber-500 cursor-pointer'
+                                            : 'bg-white/2 border-white/5 opacity-30 cursor-not-allowed'
                                     }`}
                             >
                                 <div className={`w-8 h-8 rounded-xl flex items-center justify-center mb-4 border ${isCurrent ? 'bg-amber-500 text-slate-950' : 'bg-white/5 text-gray-600'}`}>

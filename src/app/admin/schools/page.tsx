@@ -1,4 +1,5 @@
 "use client";
+export const dynamic = 'force-dynamic';
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Building2, Plus, Mail, Phone, MapPin, ShieldCheck, Search, Key, Trash2, Edit2, X, ChevronRight } from 'lucide-react';
