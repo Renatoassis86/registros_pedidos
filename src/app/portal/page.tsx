@@ -131,12 +131,6 @@ export default function SchoolDashboard() {
             {/* Seção Superior: Saudação e Stats Compactos */}
             <div className="flex flex-col lg:flex-row gap-8 items-start justify-between">
                 <div className="space-y-4">
-                    <div className="flex items-center gap-3 text-amber-500">
-                        <div className="p-2 bg-amber-500/10 rounded-lg">
-                            <LayoutDashboard className="w-5 h-5" />
-                        </div>
-                        <span className="text-[10px] font-black uppercase tracking-[0.3em]">Portal da Escola</span>
-                    </div>
                     <h1 className="text-5xl md:text-6xl font-black text-white uppercase italic tracking-tighter leading-none">
                         Bem-vindo,<br />
                         <span className="text-amber-500">{schoolName}.</span>

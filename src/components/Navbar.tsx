@@ -71,18 +71,21 @@ export const Navbar = () => {
                         {isLoggedIn ? (
                             <button
                                 onClick={handleLogout}
-                                className="bg-amber-500 hover:bg-amber-600 text-slate-950 p-2.5 rounded-full transition-all shadow-lg shadow-amber-500/20 flex items-center gap-2 px-4"
+                                className="bg-amber-500 hover:bg-amber-600 text-slate-950 p-2.5 rounded-full transition-all shadow-lg shadow-amber-500/20 flex items-center justify-center"
+                                title="Sair"
                             >
-                                <LogOut className="w-4 h-4" />
-                                <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Sair</span>
+                                <LogOut className="w-5 h-5" />
                             </button>
                         ) : (
-                            <Link href="/login" className="bg-amber-500/10 hover:bg-amber-500 hover:text-slate-950 text-amber-500 p-2.5 rounded-full transition-all border border-amber-500/20 flex items-center gap-2 px-4">
-                                <User className="w-4 h-4" />
-                                <span className="text-[10px] font-black uppercase tracking-widest hidden sm:inline">Acessar</span>
+                            <Link
+                                href="/login"
+                                className="bg-amber-500/10 hover:bg-amber-500 hover:text-slate-950 text-amber-500 p-2.5 rounded-full transition-all border border-amber-500/20 flex items-center justify-center"
+                                title="Acessar"
+                            >
+                                <User className="w-5 h-5" />
                             </Link>
                         )}
-                        <button className="md:hidden text-white">
+                        <button className="md:hidden text-white p-2.5">
                             <Menu className="w-6 h-6" />
                         </button>
                     </div>

@@ -44,14 +44,6 @@ export default function AdminDashboard() {
     return (
         <div className="admin-dashboard py-10">
             <header className="page-header mb-12 space-y-4">
-                <div className="flex items-center gap-3 text-red-400 mb-2">
-                    <div className="p-1.5 bg-red-400/10 rounded-lg">
-                        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v2m0-2h2m-2 0H10m4-6a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-                        </svg>
-                    </div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em]">Área de Controle Restrita</span>
-                </div>
                 <h1 className="text-5xl font-black text-white uppercase italic tracking-tighter leading-none mb-2">
                     Portal do <span className="text-amber-500">Administrador</span>
                 </h1>
