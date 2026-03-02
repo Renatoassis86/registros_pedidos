@@ -34,11 +34,8 @@ export default function Login() {
         setError(null);
 
         try {
-            // 1. Auth Standard
-            const { data, error: authError } = await supabase.auth.signInWithPassword({
-                email,
-                password,
-            });
+            // Standard Auth
+            const { data, error: authError } = await supabase.auth.signInWithPassword({ email, password });
 
             if (!authError && data.user) {
                 const { data: profile } = await supabase.from('profiles').select('role').eq('id', data.user.id).single();
@@ -47,37 +44,36 @@ export default function Login() {
                 return;
             }
 
-            // 2. Fallback Portal Escolas
+            // Fallback Schools Table
             const { data: school } = await supabase.from('schools').select('id, name').eq('portal_email', email).eq('portal_password', password).single();
             if (school) {
                 localStorage.setItem('school_portal_id', school.id);
                 localStorage.setItem('school_portal_name', school.name);
                 router.push('/portal');
             } else {
-                setError('Credenciais inválidas. Verifique seu e-mail e senha.');
+                setError('Credenciais inválidas.');
             }
         } catch (err) {
-            setError('Erro ao conectar ao servidor.');
+            setError('Falha de sistema.');
         } finally {
             setLoading(false);
         }
     }
 
     return (
-        <div className="relative min-h-[calc(100vh-6rem)] flex items-center justify-center -mt-8 overflow-hidden">
+        <div className="relative min-h-[calc(100vh-6rem)] -mt-12 flex items-center justify-center bg-[#0b1222] overflow-hidden">
             <HeroVideo />
 
-            <div className="relative z-10 w-full max-w-[480px] px-6 py-20 animate-slide-up">
+            <div className="relative z-10 w-full max-w-[480px] px-6 animate-slide-up">
                 <div className="relative group">
                     <div className="absolute -inset-1 bg-gradient-to-r from-amber-500/20 to-amber-700/20 rounded-[2.5rem] blur opacity-25 group-hover:opacity-50 transition duration-1000"></div>
-                    <div className="relative glass-card p-10 md:p-12 border border-white/10 bg-[#020617]/80 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl overflow-hidden">
-
+                    <div className="relative glass-card p-10 md:p-12 border border-white/10 bg-[#020617]/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl overflow-hidden">
                         <div className="mb-10 text-center">
                             <div className="inline-flex p-3 bg-amber-500/10 rounded-2xl mb-6">
                                 <ShieldCheck className="w-8 h-8 text-amber-500" />
                             </div>
                             <h2 className="text-3xl font-black text-white italic uppercase tracking-tighter leading-none mb-2">Acesso ao <span className="text-amber-500">Portal</span></h2>
-                            <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em]">Cidade Viva Education</p>
+                            <p className="text-[10px] text-gray-500 font-black uppercase tracking-[0.2em]">Identifique sua unidade</p>
                         </div>
 
                         {error && (
@@ -93,7 +89,7 @@ export default function Login() {
                                     <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-600 group-focus-within/input:text-amber-500 transition-colors" />
                                     <input
                                         type="email"
-                                        placeholder="seu@email.com"
+                                        placeholder="seu@dominio.com"
                                         className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-6 text-white text-sm font-bold focus:border-amber-500 outline-none transition-all focus:bg-white/10"
                                         value={email}
                                         onChange={e => setEmail(e.target.value)}
@@ -117,11 +113,7 @@ export default function Login() {
                                 </div>
                             </div>
 
-                            <button
-                                type="submit"
-                                disabled={loading}
-                                className="btn-primary w-full h-16 rounded-2xl shadow-xl shadow-amber-500/10 group active:scale-95 transition-all disabled:opacity-50"
-                            >
+                            <button type="submit" disabled={loading} className="btn-primary w-full h-16 rounded-2xl shadow-xl shadow-amber-500/10 group active:scale-95 transition-all disabled:opacity-50">
                                 <span className="font-black italic tracking-tighter text-xl uppercase leading-none">
                                     {loading ? 'AUTENTICANDO...' : 'ENTRAR NO SISTEMA'}
                                 </span>
@@ -139,10 +131,7 @@ export default function Login() {
             </div>
 
             <style jsx>{`
-                @keyframes slide-up {
-                    from { opacity: 0; transform: translateY(30px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
+                @keyframes slide-up { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
                 .animate-slide-up { animation: slide-up 0.8s cubic-bezier(0.16, 1, 0.3, 1); }
                 .animate-shake { animation: shake 0.4s cubic-bezier(.36,.07,.19,.97) both; }
                 @keyframes shake {
